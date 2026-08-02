@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>마음의 결 · 리딩 시트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0A0710;color:#E7E1F0;font-family:'Noto Sans KR',sans-serif;
+    display:flex;flex-direction:column;align-items:center;padding:0 0 80px;}
+  .wrap{width:100%;max-width:760px;padding:0 20px;}
+
+  header{text-align:center;padding:64px 0 44px;}
+  .eyebrow{font-weight:300;font-size:13px;letter-spacing:.5em;text-indent:.5em;color:#C9A227;}
+  header h1{font-family:'Gowun Batang',serif;font-weight:700;font-size:42px;letter-spacing:.04em;
+    margin-top:18px;background:linear-gradient(175deg,#FBF3DC,#E6D6A4 46%,#A88418);
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  header p{font-weight:300;font-size:15px;line-height:1.9;color:#A99BBC;margin-top:20px;}
+
+  .step{border:1px solid rgba(201,162,39,.28);border-radius:12px;
+    background:rgba(255,255,255,.02);padding:26px 22px;margin-top:20px;}
+  .step h2{font-weight:400;font-size:16px;color:#E6D6A4;letter-spacing:.06em;
+    display:flex;align-items:center;gap:12px;}
+  .num{width:26px;height:26px;flex:none;border-radius:50%;border:1px solid rgba(201,162,39,.6);
+    display:flex;align-items:center;justify-content:center;font-size:13px;color:#E6D6A4;}
+  .step p{font-weight:300;font-size:14px;line-height:1.85;color:#A99BBC;margin-top:14px;}
+  .step p b{font-weight:500;color:#E7E1F0;}
+
+  button{font-family:'Noto Sans KR',sans-serif;font-size:15px;border:none;
+    border-radius:8px;padding:15px 20px;cursor:pointer;width:100%;margin-top:16px;}
+  .gold{color:#1A1226;background:linear-gradient(175deg,#F3E6BE,#C9A227);font-weight:500;}
+  .ghost{color:#E6D6A4;background:transparent;border:1px solid rgba(201,162,39,.5);}
+  button:disabled{opacity:.5;cursor:default;}
+
+  textarea{width:100%;height:180px;margin-top:16px;background:#140E20;color:#E7E1F0;
+    border:1px solid rgba(201,162,39,.3);border-radius:8px;padding:14px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;
+    resize:vertical;outline:none;}
+  textarea:focus{border-color:rgba(201,162,39,.7);}
+
+  #view{width:100%;max-width:1080px;margin-top:34px;padding:0 20px;}
+  canvas{display:block;width:100%;height:auto;border-radius:6px;}
+  footer{font-weight:300;font-size:12px;letter-spacing:.4em;text-indent:.4em;
+    color:rgba(201,162,39,.55);margin-top:56px;}
+  .note{font-size:12.5px;color:#7E7290;margin-top:10px;line-height:1.8;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">마음의 결</p>
+    <h1>리딩 시트</h1>
+    <p>타로 리딩을 한 장의 이미지로 만들어 줍니다.<br>설치 없이 이 화면에서 바로 저장됩니다.</p>
+  </header>
+
+  <div class="step">
+    <h2><span class="num">1</span>프롬프트 복사</h2>
+    <p>아래 버튼을 눌러 프롬프트를 복사한 뒤, 쓰시는 AI 대화창에 붙여넣으세요.
+       그다음 <b>사연과 질문을 적고, 마지막 줄에 카드 번호</b>를 적으면 됩니다.</p>
+    <button class="ghost" id="copyBtn">프롬프트 복사</button>
+    <p class="note">78장 덱 기준입니다. 번호는 메이저 1~22, 완드 23~36, 컵 37~50, 검 51~64, 펜타클 65~78.</p>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">2</span>결과 붙여넣기</h2>
+    <p>AI가 만들어준 <b>const R = { … };</b> 전체를 그대로 붙여넣고 적용을 누르세요.</p>
+    <textarea id="ta" placeholder="const R = { ... };" spellcheck="false"></textarea>
+    <button class="gold" id="applyBtn">적용</button>
+  </div>
+
+  <div class="step">
+    <h2><span class="num">3</span>이미지로 저장</h2>
+    <p>아래 미리보기가 그대로 저장됩니다. 폭 1080px 이미지로 내려받습니다.</p>
+    <button class="gold" id="dl">JPG로 저장</button>
+    <p class="note">카카오톡으로 보내실 때는 사진이 아니라 파일로 보내면 글씨가 뭉개지지 않습니다.</p>
+  </div>
+</div>
+
+<div id="view"><canvas id="cv"></canvas></div>
+<footer>MAEUM-UI-GYEOL</footer>
+
+<script id="promptSrc" type="text/plain">
+당신은 '마음의 결' 타로 마스터입니다.
+재회·미련·짝사랑으로 찾아온 사람에게 타로 리딩을 전합니다.
+
+[입력]
+사연과 질문을 여러 줄로 길게 적고, 마지막 줄에 카드 번호를 적습니다.
+문장이 흐트러져 있거나 오타가 있어도 그대로 받습니다.
+마지막 줄의 숫자를 카드 번호로 읽고, 그 앞의 모든 내용을 사연으로 읽습니다.
+숫자가 5개면 5장, 3개면 3장 리딩입니다.
+다른 안내가 없어도 입력만 들어오면 바로 결과를 출력합니다.
+
+[번호 기준 · 78장]
+1~22 메이저
+ 1 바보 2 마법사 3 여사제 4 여황제 5 황제
+ 6 교황 7 연인 8 전차 9 힘 10 은둔자
+ 11 운명의수레바퀴 12 정의 13 매달린남자 14 죽음
+ 15 절제 16 악마 17 탑 18 별 19 달
+ 20 태양 21 심판 22 세계
+23~36 완드   (23=A, 24~32=2~10, 33 페이지 34 기사 35 퀸 36 킹)
+37~50 컵     (37=A, 38~46=2~10, 47 페이지 48 기사 49 퀸 50 킹)
+51~64 검     (51=A, 52~60=2~10, 61 페이지 62 기사 63 퀸 64 킹)
+65~78 펜타클 (65=A, 66~74=2~10, 75 페이지 76 기사 77 퀸 78 킹)
+
+[역방향]
+번호에는 방향 정보가 없습니다.
+카드마다 방향을 무작위로 정합니다.
+5장 중 1~2장 정도가 역방향이 되도록 하고,
+정한 뒤에는 그 방향으로 끝까지 일관되게 해석합니다.
+번호 뒤에 R이 붙어 있으면 그 지정을 우선합니다.
+
+[자리]
+5장일 때, 뽑힌 순서대로 놓습니다.
+1 상대의 지금 마음
+2 나에게 남아 있는 감정
+3 상대가 말하지 못하는 것   ← 가장 깊은 자리, 가장 길게
+4 앞으로 세 달의 흐름
+5 지금 내가 쥔 선택지
+
+3장일 때는 아래 세 자리로 고정합니다.
+1 상대의 지금 마음
+2 상대가 말하지 못하는 것
+3 지금 내가 쥔 선택지
+
+[톤]
+- 감정선이 깊고 현실적입니다. 담백하지만 차갑지 않습니다.
+- 한 호흡에 한 문장. 줄바꿈을 넉넉히 씁니다.
+- 위로와 직언을 함께 놓습니다. 둘 중 하나만 하지 않습니다.
+
+[사연 활용]
+사연 속 구체적인 사실(다툰 일, 연락이 끊긴 시점, 들은 소식 등)을
+opening과 analysis에서 직접 언급합니다.
+일반적인 이야기가 아니라 이 사람의 이야기로 읽혀야 합니다.
+다만 사연을 그대로 요약해 되풀이하지 않습니다.
+
+[반드시 지킬 것]
+- "돌아옵니다" "끝났습니다" 같은 단정을 하지 않습니다.
+  흐름과 선택지를 보여주고, 결정은 질문자에게 남깁니다.
+- 날짜나 시기를 확정하지 않습니다.
+- 상대방을 비난하지 않습니다. 판단이 아니라 해석입니다.
+- 연락하라, 찾아가라 등 상대에게 부담을 주는 행동은 권하지 않습니다.
+- 목록형 조언을 따로 만들지 않습니다.
+  하고 싶은 말은 마무리 글 안에 문장으로 녹입니다.
+- 질문자가 극단적인 상태를 내비치면 리딩을 멈추고,
+  전문적인 도움을 받도록 따뜻하게 안내합니다.
+
+[각 부분의 성격]
+question — 받은 질문을 25자 안팎의 한 줄로 다듬습니다.
+opening — 지금 이 사람의 감정을 정확히 짚습니다.
+  "힘드셨겠어요" 같은 일반적 위로는 쓰지 않습니다. 3~4문단.
+key — 카드 한 장을 한 줄로 요약. 20자 안팎.
+read — 질문자가 아니라 상대방의 심리와 상황의 본질을 읽습니다. 2~3문단.
+analysis — 질문에 정면으로 답합니다.
+  붙들고 있는 환상이 보이면 부드럽게, 그러나 분명히 짚습니다.
+  카드가 좋지 않으면 좋지 않다고 말합니다. 3~4문단.
+closing — 짧은 한마디가 아니라 길게 씁니다.
+  스스로를 탓하고 있는 지점을 짚어주고,
+  그 감정이 어디서 왔는지 해석한 뒤 놓아줍니다.
+  마지막은 "카드는 정해진 답이 아니라 지금의 결입니다"로 닫습니다.
+
+[출력]
+아래 형식만 출력합니다. 설명, 인사말, 코드블록 표시를 붙이지 않습니다.
+문단은 <p class="body">…</p>, 줄바꿈은 <br>, 강조는 <b>…</b>
+closing 안에서만 <p>…</p> 를 씁니다.
+name 에는 카드 이름만 넣고, 역방향은 reversed:true 로 표시합니다.
+전체 2,500자 이상.
+
+const R = {
+  title:"결 깊은 리딩",
+  question:"",
+  opening:`
+    <p class="body"></p>`,
+  cards:[
+    { pos:"상대의 지금 마음", name:"", reversed:false,
+      key:"", read:`<p class="body"></p>` }
+  ],
+  analysis:`
+    <p class="body"></p>`,
+  closing:`
+    <p></p>`
+};
+</script>
+
+<script>
+let R = {
+  title:"결 깊은 리딩",
+  question:"헤어진 지 두 달, 다시 만날 수 있을까요",
+  opening:`
+    <p class="body">두 달이면 아직 아무것도 정리되지 않는 시간입니다.<br>
+    잊었다고 생각한 날에 더 선명하게 떠오르고,<br>
+    괜찮다가도 사소한 것에 무너지셨을 거예요.</p>
+    <p class="body">다시 만날 수 있는지 묻고 계시지만,<br>
+    사실 더 견디기 힘든 건 <b>아무것도 모르는 상태로 기다리는 것</b>이었을 겁니다.</p>`,
+  cards:[
+    { pos:"상대의 지금 마음", name:"컵 8", reversed:false,
+      key:"떠나왔지만 아직 뒤를 돌아보고 있는 자리",
+      read:`<p class="body">이 카드는 등을 돌리고 걸어가는 사람의 카드입니다.<br>
+      다만 완전히 떠난 사람의 카드는 아닙니다.</p>
+      <p class="body">상대는 관계에서 물러섰지만,<br>
+      그 결정이 <b>후련해서 내린 것이 아닙니다</b>.</p>`},
+    { pos:"나에게 남아 있는 감정", name:"완드 5", reversed:true,
+      key:"미련보다 정리되지 않은 억울함이 먼저",
+      read:`<p class="body">역방향으로 나온 이 카드는 밖이 아니라<br>
+      <b>안에서 계속되고 있는 다툼</b>을 말합니다.</p>`},
+    { pos:"상대가 말하지 못하는 것", name:"펜타클 기사", reversed:false,
+      key:"확신이 설 때까지 움직이지 않겠다는 마음",
+      read:`<p class="body">이 카드의 사람은 느립니다.<br>
+      마음이 없어서가 아니라, <b>확신 없이는 한 발도 떼지 않기 때문</b>입니다.</p>`},
+    { pos:"앞으로 세 달의 흐름", name:"달", reversed:false,
+      key:"윤곽이 흐린 시기, 성급한 확인은 어긋납니다",
+      read:`<p class="body">달빛 아래에서는 모든 것이 실제보다 크거나 작게 보입니다.</p>`},
+    { pos:"지금 내가 쥔 선택지", name:"별", reversed:false,
+      key:"기다림이 아니라 나를 회복시키는 쪽",
+      read:`<p class="body">별은 상처 다음에 오는 카드입니다.</p>`}
+  ],
+  analysis:`
+    <p class="body">지금 카드에는 <b>마음이 끊어졌다는 신호가 없습니다</b>.<br>
+    다만 <b>움직일 준비가 되었다는 신호도 없습니다</b>.</p>`,
+  closing:`
+    <p>스스로를 많이 탓하셨을 겁니다.<br>
+    하지만 카드에는 당신의 잘못으로 끝났다는 자리가 없습니다.</p>
+    <p>카드는 정해진 답이 아니라 지금의 결입니다.</p>`
+};
+
+const W=1080, PAD=100, IND=60;
+const C={gold:'#C9A227',goldPale:'#E6D6A4',paper:'#F3EFE6',body:'#E7E1F0',
+  bodyB:'#FBF0D2',q:'#DED2EE',closing:'#F0E6CF'};
+const SERIF="'Gowun Batang', serif", SANS="'Noto Sans KR', sans-serif";
+
+function paras(h){const o=[],re=/<p[^>]*>([\s\S]*?)<\/p>/g;let m;while((m=re.exec(h)))o.push(runs(m[1]));return o;}
+function runs(s){s=s.replace(/\s*\n\s*/g,'').replace(/<br\s*\/?>/g,'\u0001');
+  const o=[],re=/<b>([\s\S]*?)<\/b>|([^<]+)/g;let m;
+  while((m=re.exec(s))){if(m[1]!=null)o.push({t:m[1],b:true});else if(m[2])o.push({t:m[2],b:false});}return o;}
+function tokens(t){return t.match(/[A-Za-z0-9'’.,!?()\-]+|\s|[\s\S]/g)||[];}
+
+function text(ctx,rs,x,maxW,st,y,draw){
+  const lines=[];let line=[],w=0;
+  const set=b=>ctx.font=(b?st.wb:st.w)+' '+st.size+'px '+st.font;
+  for(const r of rs)for(const tk of tokens(r.t)){
+    if(tk==='\u0001'){lines.push(line);line=[];w=0;continue;}
+    set(r.b);const tw=ctx.measureText(tk).width;
+    if(w+tw>maxW&&line.length&&tk.trim()){lines.push(line);line=[];w=0;}
+    if(!line.length&&!tk.trim())continue;
+    line.push({t:tk,b:r.b,w:tw});w+=tw;}
+  if(line.length)lines.push(line);
+  const lh=st.size*st.lh;
+  if(draw){ctx.textBaseline='alphabetic';
+    lines.forEach((ln,i)=>{const total=ln.reduce((a,b)=>a+b.w,0);
+      let cx=st.align==='center'?x+(maxW-total)/2:x;const by=y+lh*i+st.size*0.78;
+      for(const p of ln){ctx.font=(p.b?st.wb:st.w)+' '+st.size+'px '+st.font;
+        ctx.fillStyle=p.b?(st.bc||st.c):st.c;ctx.fillText(p.t,cx,by);cx+=p.w;}});}
+  return lines.length*lh;
+}
+function block(ctx,html,x,maxW,st,y,draw,gap){
+  for(const p of paras(html))y+=text(ctx,p,x,maxW,st,y,draw)+gap;return y-gap;}
+function spaced(ctx,s,cx,y,size,ls,color,font,weight,align){
+  ctx.font=weight+' '+size+'px '+font;ctx.fillStyle=color;ctx.textBaseline='alphabetic';
+  const ch=[...s],total=ch.reduce((a,c)=>a+ctx.measureText(c).width+ls,0)-ls;
+  let x=align==='center'?cx-total/2:cx;
+  for(const c of ch){ctx.fillText(c,x,y+size*0.78);x+=ctx.measureText(c).width+ls;}}
+
+const ST={
+  body:{size:31,lh:2.15,font:SANS,w:'300',wb:'500',c:C.body,bc:C.bodyB},
+  close:{size:33,lh:2.1,font:SERIF,w:'400',wb:'700',c:C.closing,bc:C.closing,align:'center'},
+  q:{size:35,lh:1.75,font:SERIF,w:'400',wb:'700',c:C.q,align:'center'}
+};
+function line(ctx,x,y,w){ctx.fillStyle='rgba(201,162,39,.25)';ctx.fillRect(x,y,w,1);}
+function divider(ctx,y,draw){
+  y+=88;
+  if(draw){const cx=W/2;ctx.fillStyle='rgba(201,162,39,.28)';
+    ctx.fillRect(cx-241,y,120,1);ctx.fillRect(cx+121,y,120,1);
+    [[-73,1],[0,2],[73,1]].forEach(([dx,t])=>{ctx.beginPath();ctx.arc(cx+dx,y,4.5,0,7);
+      if(t===2){ctx.fillStyle='rgba(230,214,164,.85)';ctx.fill();}
+      else{ctx.strokeStyle='rgba(201,162,39,.65)';ctx.lineWidth=1;ctx.stroke();}});}
+  return y+78;
+}
+function moon(ctx,x,y,d,i,n){
+  const r=d/2,cx=x+r,cy=y+r,frac=n<2?1:i/(n-1);
+  ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.clip();
+  if(frac>0){ctx.fillStyle=C.goldPale;ctx.fillRect(x,y,d*frac,d);}ctx.restore();
+  ctx.beginPath();ctx.arc(cx,cy,r-.5,0,7);
+  ctx.strokeStyle='rgba(201,162,39,.5)';ctx.lineWidth=1;ctx.stroke();
+}
+function render(ctx,draw,H){
+  const cw=W-PAD*2;
+  if(draw){
+    let g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#120C1B');g.addColorStop(.40,'#1E1430');
+    g.addColorStop(.62,'#1E1430');g.addColorStop(1,'#120C1B');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    const glow=(cy,ry,col)=>{const rx=972;ctx.save();ctx.translate(W/2,cy);ctx.scale(1,ry/rx);
+      const rg=ctx.createRadialGradient(0,0,0,0,0,rx);
+      rg.addColorStop(0,col);rg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=rg;ctx.fillRect(-rx,-rx,rx*2,rx*2);ctx.restore();};
+    glow(0,H*.18,'rgba(51,32,79,.95)');glow(H,H*.14,'rgba(42,25,67,.95)');
+    ctx.fillStyle='rgba(255,255,255,.35)';
+    [[11,3,1.4],[83,6,1.1],[27,14,1],[93,22,1.4],[6,38,1],[71,57,1.2],[17,71,1],
+     [88,84,1.3],[38,95,1],[54,29,1.1],[8,63,1.2],[96,68,1],[45,79,1.3],[63,11,1]]
+      .forEach(p=>{ctx.beginPath();ctx.arc(W*p[0]/100,H*p[1]/100,p[2],0,7);ctx.fill();});
+  }
+  let y=110;
+  if(draw)spaced(ctx,'마음의 결 타로',W/2,y,23,11.5,C.gold,SANS,'300','center');
+  y+=23*1.2+30;
+  if(draw){const g=ctx.createLinearGradient(0,y,0,y+82);
+    g.addColorStop(0,'#FBF3DC');g.addColorStop(.46,'#E6D6A4');g.addColorStop(1,'#A88418');
+    ctx.font='700 82px '+SERIF;ctx.fillStyle=g;ctx.textAlign='center';
+    ctx.fillText(R.title,W/2,y+82*.8);ctx.textAlign='left';}
+  y+=82*1.16+64;
+  if(draw)line(ctx,PAD,y,cw); y+=36;
+  y+=text(ctx,runs(R.question||''),PAD+40,cw-80,ST.q,y,draw)+36;
+  if(draw)line(ctx,PAD,y,cw);
+  y+=56;
+  y=block(ctx,R.opening||'',PAD,cw,ST.body,y,draw,34);
+  y=divider(ctx,y,draw);
+  const n=R.cards.length;
+  R.cards.forEach((c,i)=>{
+    if(i){if(draw){ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(PAD,y,cw,1);}y+=60;}
+    if(draw){moon(ctx,PAD,y+2,32,i,n);
+      spaced(ctx,c.pos,PAD+60,y+3,24,5.8,'rgba(180,167,198,.9)',SANS,'300');}
+    y+=56;
+    if(draw){ctx.font='700 50px '+SERIF;ctx.fillStyle=C.paper;
+      ctx.fillText(c.name,PAD+IND,y+40);
+      if(c.reversed){const bx=PAD+IND+ctx.measureText(c.name).width+16;
+        ctx.font='400 21px '+SANS;const bw=ctx.measureText('역방향').width;
+        ctx.fillStyle=C.goldPale;ctx.fillRect(bx,y+14,bw+24,32);
+        ctx.fillStyle='#120C1B';ctx.fillText('역방향',bx+12,y+36);}}
+    y+=50*1.05+14;
+    y+=text(ctx,runs(c.key||''),PAD+IND,cw-IND,
+      {size:29,lh:1.7,font:SERIF,w:'400',wb:'700',c:'rgba(230,214,164,.85)'},y,draw)+32;
+    y=block(ctx,c.read||'',PAD+IND,cw-IND,ST.body,y,draw,34)+64;
+  });
+  y-=64;
+  y=divider(ctx,y,draw);
+  y=block(ctx,R.analysis||'',PAD,cw,ST.body,y,draw,34);
+  y=divider(ctx,y,draw);
+  const inW=cw-120, ch=block(ctx,R.closing||'',PAD+60,inW,ST.close,0,false,30);
+  if(draw){ctx.strokeStyle='rgba(201,162,39,.3)';ctx.lineWidth=1;
+    ctx.fillStyle='rgba(255,255,255,.018)';
+    ctx.fillRect(PAD,y,cw,ch+140);ctx.strokeRect(PAD+.5,y+.5,cw-1,ch+140-1);}
+  block(ctx,R.closing||'',PAD+60,inW,ST.close,y+70,draw,30);
+  y+=ch+140+70;
+  if(draw)spaced(ctx,'@gyeol_taro',W/2,y,22,11,'rgba(201,162,39,.7)',SANS,'300','center');
+  return y+22*1.2+96;
+}
+
+const cv=document.getElementById('cv');
+function draw(){
+  let ctx=cv.getContext('2d');
+  cv.width=W;cv.height=10;
+  const H=Math.ceil(render(ctx,false,0));
+  cv.width=W;cv.height=H;
+  render(cv.getContext('2d'),true,H);
+}
+(document.fonts?document.fonts.load('700 82px "Gowun Batang"')
+  .then(()=>document.fonts.load('300 31px "Noto Sans KR"'))
+  .then(()=>document.fonts.ready):Promise.resolve()).then(draw);
+
+document.getElementById('copyBtn').onclick=function(){
+  const t=document.getElementById('promptSrc').textContent.trim();
+  const done=()=>{this.textContent='복사했습니다';setTimeout(()=>this.textContent='프롬프트 복사',1600);};
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(done).catch(fallback.bind(this));
+  else fallback.call(this);
+  function fallback(){
+    const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);
+    a.select();document.execCommand('copy');a.remove();done();
+  }
+};
+document.getElementById('applyBtn').onclick=function(){
+  let t=document.getElementById('ta').value.trim();
+  t=t.replace(/^(const|let|var)\s+R\s*=/,'').replace(/;\s*$/,'').trim();
+  if(!t){alert('붙여넣은 내용이 없습니다.');return;}
+  try{
+    const next=new Function('return ('+t+')')();
+    if(!next||!Array.isArray(next.cards)||!next.cards.length)throw 0;
+    R=next;draw();
+    document.getElementById('view').scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    alert('형식을 읽지 못했습니다.\n{ 로 시작해서 } 로 끝나는 부분까지 통째로 붙여넣었는지 확인해 주세요.');
+  }
+};
+document.getElementById('dl').onclick=function(){
+  const a=document.createElement('a');
+  a.download='리딩시트_'+new Date().toISOString().slice(0,10)+'.jpg';
+  a.href=cv.toDataURL('image/jpeg',0.95);a.click();
+};
+</script>
+</body>
+</html>
