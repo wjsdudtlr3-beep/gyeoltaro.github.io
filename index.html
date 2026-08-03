@@ -10,42 +10,48 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:#0A0710;color:#E7E1F0;font-family:'Noto Sans KR',sans-serif;
-    display:flex;flex-direction:column;align-items:center;padding:0 0 80px;}
+    display:flex;flex-direction:column;align-items:center;padding-bottom:80px;}
   .wrap{width:100%;max-width:760px;padding:0 20px;}
-
-  header{text-align:center;padding:64px 0 44px;}
+  header{text-align:center;padding:60px 0 40px;}
   .eyebrow{font-weight:300;font-size:13px;letter-spacing:.5em;text-indent:.5em;color:#C9A227;}
-  header h1{font-family:'Gowun Batang',serif;font-weight:700;font-size:42px;letter-spacing:.04em;
+  header h1{font-family:'Gowun Batang',serif;font-weight:700;font-size:40px;letter-spacing:.04em;
     margin-top:18px;background:linear-gradient(175deg,#FBF3DC,#E6D6A4 46%,#A88418);
     -webkit-background-clip:text;background-clip:text;color:transparent;}
-  header p{font-weight:300;font-size:15px;line-height:1.9;color:#A99BBC;margin-top:20px;}
+  header p{font-weight:300;font-size:15px;line-height:1.9;color:#A99BBC;margin-top:18px;}
 
   .step{border:1px solid rgba(201,162,39,.28);border-radius:12px;
-    background:rgba(255,255,255,.02);padding:26px 22px;margin-top:20px;}
+    background:rgba(255,255,255,.02);padding:24px 20px;margin-top:18px;}
   .step h2{font-weight:400;font-size:16px;color:#E6D6A4;letter-spacing:.06em;
     display:flex;align-items:center;gap:12px;}
   .num{width:26px;height:26px;flex:none;border-radius:50%;border:1px solid rgba(201,162,39,.6);
-    display:flex;align-items:center;justify-content:center;font-size:13px;color:#E6D6A4;}
-  .step p{font-weight:300;font-size:14px;line-height:1.85;color:#A99BBC;margin-top:14px;}
+    display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .step p{font-weight:300;font-size:14px;line-height:1.85;color:#A99BBC;margin-top:12px;}
   .step p b{font-weight:500;color:#E7E1F0;}
+  .note{font-size:12.5px;color:#7E7290;margin-top:10px;line-height:1.8;}
 
   button{font-family:'Noto Sans KR',sans-serif;font-size:15px;border:none;
-    border-radius:8px;padding:15px 20px;cursor:pointer;width:100%;margin-top:16px;}
+    border-radius:8px;padding:15px 20px;cursor:pointer;width:100%;margin-top:12px;}
   .gold{color:#1A1226;background:linear-gradient(175deg,#F3E6BE,#C9A227);font-weight:500;}
   .ghost{color:#E6D6A4;background:transparent;border:1px solid rgba(201,162,39,.5);}
   button:disabled{opacity:.5;cursor:default;}
-
-  textarea{width:100%;height:180px;margin-top:16px;background:#140E20;color:#E7E1F0;
+  textarea{width:100%;height:170px;margin-top:14px;background:#140E20;color:#E7E1F0;
     border:1px solid rgba(201,162,39,.3);border-radius:8px;padding:14px;
     font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;
     resize:vertical;outline:none;}
-  textarea:focus{border-color:rgba(201,162,39,.7);}
 
-  #view{width:100%;max-width:1080px;margin-top:34px;padding:0 20px;}
-  canvas{display:block;width:100%;height:auto;border-radius:6px;}
-  footer{font-weight:300;font-size:12px;letter-spacing:.4em;text-indent:.4em;
-    color:rgba(201,162,39,.55);margin-top:56px;}
-  .note{font-size:12.5px;color:#7E7290;margin-top:10px;line-height:1.8;}
+  #slides{width:100%;max-width:560px;padding:26px 20px 0;display:flex;
+    flex-direction:column;gap:24px;}
+  #slides.swipe{flex-direction:row;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+    padding-bottom:14px;scrollbar-width:none;}
+  #slides.swipe::-webkit-scrollbar{display:none;}
+  #slides.swipe .slide{flex:0 0 100%;scroll-snap-align:center;}
+  .slide{position:relative;}
+  #modeRow{width:100%;max-width:560px;padding:22px 20px 0;}
+  #mode{margin-top:0;}
+  #hint{text-align:center;font-size:12.5px;color:#7E7290;margin-top:10px;}
+  .slide canvas{display:block;width:100%;height:auto;border-radius:6px;}
+  .tag{position:absolute;top:10px;left:10px;font-size:11px;letter-spacing:.16em;
+    color:#E6D6A4;background:rgba(10,7,16,.72);border-radius:999px;padding:5px 11px;}
 </style>
 </head>
 <body>
@@ -54,34 +60,39 @@
   <header>
     <p class="eyebrow">마음의 결</p>
     <h1>리딩 시트</h1>
-    <p>타로 리딩을 한 장의 이미지로 만들어 줍니다.<br>설치 없이 이 화면에서 바로 저장됩니다.</p>
+    <p>리딩을 넘겨 보는 카드 여러 장으로 만들어 줍니다.<br>1080 × 1350, 인스타그램 규격입니다.</p>
   </header>
 
   <div class="step">
     <h2><span class="num">1</span>프롬프트 복사</h2>
-    <p>아래 버튼을 눌러 프롬프트를 복사한 뒤, 쓰시는 AI 대화창에 붙여넣으세요.
-       그다음 <b>사연과 질문을 적고, 마지막 줄에 카드 번호</b>를 적으면 됩니다.</p>
+    <p>버튼을 눌러 복사한 뒤 쓰시는 AI 대화창에 붙여넣고,
+       <b>사연과 질문을 적고 마지막 줄에 카드 번호</b>를 적으세요.</p>
     <button class="ghost" id="copyBtn">프롬프트 복사</button>
-    <p class="note">78장 덱 기준입니다. 번호는 메이저 1~22, 완드 23~36, 컵 37~50, 검 51~64, 펜타클 65~78.</p>
+    <p class="note">78장 덱 기준. 메이저 1~22, 완드 23~36, 컵 37~50, 검 51~64, 펜타클 65~78.</p>
   </div>
 
   <div class="step">
     <h2><span class="num">2</span>결과 붙여넣기</h2>
-    <p>AI가 만들어준 <b>const R = { … };</b> 전체를 그대로 붙여넣고 적용을 누르세요.</p>
+    <p>AI가 만들어준 <b>const R = { … };</b> 전체를 붙여넣고 적용을 누르세요.</p>
     <textarea id="ta" placeholder="const R = { ... };" spellcheck="false"></textarea>
     <button class="gold" id="applyBtn">적용</button>
   </div>
 
   <div class="step">
-    <h2><span class="num">3</span>이미지로 저장</h2>
-    <p>아래 미리보기가 그대로 저장됩니다. 폭 1080px 이미지로 내려받습니다.</p>
-    <button class="gold" id="dl">JPG로 저장</button>
-    <p class="note">카카오톡으로 보내실 때는 사진이 아니라 파일로 보내면 글씨가 뭉개지지 않습니다.</p>
+    <h2><span class="num">3</span>저장</h2>
+    <p>아래 미리보기가 그대로 저장됩니다.</p>
+    <button class="gold" id="dlAll">카드 전체 JPG로 저장</button>
+    <button class="ghost" id="dlPdf">한 파일 PDF로 저장</button>
+    <p class="note">전체 저장을 처음 누르면 브라우저가 "여러 파일 다운로드"를 물어봅니다. 허용을 눌러 주세요.
+       카드 한 장만 필요하면 그 이미지를 길게 누르거나 우클릭해 저장하시면 됩니다.</p>
   </div>
 </div>
 
-<div id="view"><canvas id="cv"></canvas></div>
-<footer>MAEUM-UI-GYEOL</footer>
+<div id="modeRow">
+  <button class="ghost" id="mode">옆으로 넘겨보기</button>
+  <p id="hint">좌우로 밀어서 넘겨보세요</p>
+</div>
+<div id="slides"></div>
 
 <script id="promptSrc" type="text/plain">
 당신은 '마음의 결' 타로 마스터입니다.
@@ -107,10 +118,8 @@
 65~78 펜타클 (65=A, 66~74=2~10, 75 페이지 76 기사 77 퀸 78 킹)
 
 [역방향]
-번호에는 방향 정보가 없습니다.
-카드마다 방향을 무작위로 정합니다.
-5장 중 1~2장 정도가 역방향이 되도록 하고,
-정한 뒤에는 그 방향으로 끝까지 일관되게 해석합니다.
+번호에는 방향 정보가 없습니다. 카드마다 방향을 무작위로 정합니다.
+5장 중 1~2장 정도가 역방향이 되도록 하고, 정한 방향으로 끝까지 일관되게 해석합니다.
 번호 뒤에 R이 붙어 있으면 그 지정을 우선합니다.
 
 [자리]
@@ -120,7 +129,6 @@
 3 상대가 말하지 못하는 것   ← 가장 깊은 자리, 가장 길게
 4 앞으로 세 달의 흐름
 5 지금 내가 쥔 선택지
-
 3장일 때는 아래 세 자리로 고정합니다.
 1 상대의 지금 마음
 2 상대가 말하지 못하는 것
@@ -201,7 +209,8 @@ let R = {
       read:`<p class="body">이 카드는 등을 돌리고 걸어가는 사람의 카드입니다.<br>
       다만 완전히 떠난 사람의 카드는 아닙니다.</p>
       <p class="body">상대는 관계에서 물러섰지만,<br>
-      그 결정이 <b>후련해서 내린 것이 아닙니다</b>.</p>`},
+      그 결정이 <b>후련해서 내린 것이 아닙니다</b>.<br>
+      더 감당할 수 없어서 자리를 옮긴 쪽에 가깝습니다.</p>`},
     { pos:"나에게 남아 있는 감정", name:"완드 5", reversed:true,
       key:"미련보다 정리되지 않은 억울함이 먼저",
       read:`<p class="body">역방향으로 나온 이 카드는 밖이 아니라<br>
@@ -226,13 +235,16 @@ let R = {
     <p>카드는 정해진 답이 아니라 지금의 결입니다.</p>`
 };
 
-const W=1080, PAD=100, IND=60;
-const C={gold:'#C9A227',goldPale:'#E6D6A4',paper:'#F3EFE6',body:'#E7E1F0',
-  bodyB:'#FBF0D2',q:'#DED2EE',closing:'#F0E6CF'};
+/* ── 규격 ── */
+const W=1080, H=1350, PAD=92, TOP=150, BOT=H-150;
+const CW=W-PAD*2;
+const C={gold:'#C9A227',goldPale:'#E6D6A4',paper:'#F3EFE6',
+  body:'#E7E1F0',bodyB:'#FBF0D2',q:'#DED2EE',closing:'#F0E6CF'};
 const SERIF="'Gowun Batang', serif", SANS="'Noto Sans KR', sans-serif";
 
-function paras(h){const o=[],re=/<p[^>]*>([\s\S]*?)<\/p>/g;let m;while((m=re.exec(h)))o.push(runs(m[1]));return o;}
-function runs(s){s=s.replace(/\s*\n\s*/g,'').replace(/<br\s*\/?>/g,'\u0001');
+/* ── 파싱 ── */
+function paras(h){const o=[],re=/<p[^>]*>([\s\S]*?)<\/p>/g;let m;while((m=re.exec(h||'')))o.push(runs(m[1]));return o;}
+function runs(s){s=(s||'').replace(/\s*\n\s*/g,'').replace(/<br\s*\/?>/g,'\u0001');
   const o=[],re=/<b>([\s\S]*?)<\/b>|([^<]+)/g;let m;
   while((m=re.exec(s))){if(m[1]!=null)o.push({t:m[1],b:true});else if(m[2])o.push({t:m[2],b:false});}return o;}
 function tokens(t){return t.match(/[A-Za-z0-9'’.,!?()\-]+|\s|[\s\S]/g)||[];}
@@ -250,33 +262,45 @@ function text(ctx,rs,x,maxW,st,y,draw){
   const lh=st.size*st.lh;
   if(draw){ctx.textBaseline='alphabetic';
     lines.forEach((ln,i)=>{const total=ln.reduce((a,b)=>a+b.w,0);
-      let cx=st.align==='center'?x+(maxW-total)/2:x;const by=y+lh*i+st.size*0.78;
+      let cx=st.align==='center'?x+(maxW-total)/2:x;const by=y+lh*i+st.size*0.76;
       for(const p of ln){ctx.font=(p.b?st.wb:st.w)+' '+st.size+'px '+st.font;
         ctx.fillStyle=p.b?(st.bc||st.c):st.c;ctx.fillText(p.t,cx,by);cx+=p.w;}});}
   return lines.length*lh;
 }
-function block(ctx,html,x,maxW,st,y,draw,gap){
-  for(const p of paras(html))y+=text(ctx,p,x,maxW,st,y,draw)+gap;return y-gap;}
 function spaced(ctx,s,cx,y,size,ls,color,font,weight,align){
   ctx.font=weight+' '+size+'px '+font;ctx.fillStyle=color;ctx.textBaseline='alphabetic';
   const ch=[...s],total=ch.reduce((a,c)=>a+ctx.measureText(c).width+ls,0)-ls;
   let x=align==='center'?cx-total/2:cx;
-  for(const c of ch){ctx.fillText(c,x,y+size*0.78);x+=ctx.measureText(c).width+ls;}}
+  for(const c of ch){ctx.fillText(c,x,y+size*0.76);x+=ctx.measureText(c).width+ls;}}
 
 const ST={
-  body:{size:31,lh:2.15,font:SANS,w:'300',wb:'500',c:C.body,bc:C.bodyB},
-  close:{size:33,lh:2.1,font:SERIF,w:'400',wb:'700',c:C.closing,bc:C.closing,align:'center'},
-  q:{size:35,lh:1.75,font:SERIF,w:'400',wb:'700',c:C.q,align:'center'}
+  body:{size:34,lh:2.0,font:SANS,w:'300',wb:'500',c:C.body,bc:C.bodyB},
+  close:{size:35,lh:2.0,font:SERIF,w:'400',wb:'700',c:C.closing,bc:C.closing,align:'center'},
+  cover:{size:38,lh:1.8,font:SERIF,w:'400',wb:'700',c:C.q,align:'center'}
 };
-function line(ctx,x,y,w){ctx.fillStyle='rgba(201,162,39,.25)';ctx.fillRect(x,y,w,1);}
-function divider(ctx,y,draw){
-  y+=88;
-  if(draw){const cx=W/2;ctx.fillStyle='rgba(201,162,39,.28)';
-    ctx.fillRect(cx-241,y,120,1);ctx.fillRect(cx+121,y,120,1);
-    [[-73,1],[0,2],[73,1]].forEach(([dx,t])=>{ctx.beginPath();ctx.arc(cx+dx,y,4.5,0,7);
-      if(t===2){ctx.fillStyle='rgba(230,214,164,.85)';ctx.fill();}
-      else{ctx.strokeStyle='rgba(201,162,39,.65)';ctx.lineWidth=1;ctx.stroke();}});}
-  return y+78;
+
+/* ── 배경 ── */
+function bg(ctx,seed){
+  let g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#120C1B');g.addColorStop(.42,'#1E1430');
+  g.addColorStop(.64,'#1E1430');g.addColorStop(1,'#120C1B');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  const glow=(cy,ry,col)=>{const rx=972;ctx.save();ctx.translate(W/2,cy);ctx.scale(1,ry/rx);
+    const rg=ctx.createRadialGradient(0,0,0,0,0,rx);
+    rg.addColorStop(0,col);rg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=rg;ctx.fillRect(-rx,-rx,rx*2,rx*2);ctx.restore();};
+  glow(0,H*.22,'rgba(51,32,79,.95)');glow(H,H*.18,'rgba(42,25,67,.95)');
+  ctx.fillStyle='rgba(255,255,255,.32)';
+  const pts=[[11,6],[83,9],[27,17],[93,26],[6,44],[71,61],[17,76],[88,88],[38,95],[54,33]];
+  pts.forEach((p,i)=>{const r=1+((i+seed)%3)*0.25;
+    ctx.beginPath();ctx.arc(W*p[0]/100,H*p[1]/100,r,0,7);ctx.fill();});
+  ctx.strokeStyle='rgba(201,162,39,.22)';ctx.lineWidth=1;
+  ctx.strokeRect(40.5,40.5,W-81,H-81);
+}
+function foot(ctx,i,n){
+  spaced(ctx,'@gyeol_taro',PAD,H-96,19,8,'rgba(201,162,39,.6)',SANS,'300');
+  ctx.font='300 19px '+SANS;ctx.fillStyle='rgba(180,167,198,.7)';
+  ctx.textAlign='right';ctx.fillText(i+' / '+n,W-PAD,H-96+15);ctx.textAlign='left';
 }
 function moon(ctx,x,y,d,i,n){
   const r=d/2,cx=x+r,cy=y+r,frac=n<2?1:i/(n-1);
@@ -285,89 +309,98 @@ function moon(ctx,x,y,d,i,n){
   ctx.beginPath();ctx.arc(cx,cy,r-.5,0,7);
   ctx.strokeStyle='rgba(201,162,39,.5)';ctx.lineWidth=1;ctx.stroke();
 }
-function render(ctx,draw,H){
-  const cw=W-PAD*2;
-  if(draw){
-    let g=ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,'#120C1B');g.addColorStop(.40,'#1E1430');
-    g.addColorStop(.62,'#1E1430');g.addColorStop(1,'#120C1B');
-    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    const glow=(cy,ry,col)=>{const rx=972;ctx.save();ctx.translate(W/2,cy);ctx.scale(1,ry/rx);
-      const rg=ctx.createRadialGradient(0,0,0,0,0,rx);
-      rg.addColorStop(0,col);rg.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle=rg;ctx.fillRect(-rx,-rx,rx*2,rx*2);ctx.restore();};
-    glow(0,H*.18,'rgba(51,32,79,.95)');glow(H,H*.14,'rgba(42,25,67,.95)');
-    ctx.fillStyle='rgba(255,255,255,.35)';
-    [[11,3,1.4],[83,6,1.1],[27,14,1],[93,22,1.4],[6,38,1],[71,57,1.2],[17,71,1],
-     [88,84,1.3],[38,95,1],[54,29,1.1],[8,63,1.2],[96,68,1],[45,79,1.3],[63,11,1]]
-      .forEach(p=>{ctx.beginPath();ctx.arc(W*p[0]/100,H*p[1]/100,p[2],0,7);ctx.fill();});
-  }
-  let y=110;
-  if(draw)spaced(ctx,'마음의 결 타로',W/2,y,23,11.5,C.gold,SANS,'300','center');
-  y+=23*1.2+30;
-  if(draw){const g=ctx.createLinearGradient(0,y,0,y+82);
+
+/* ── 항목 만들기 → 장 나누기 ── */
+function buildItems(ctx){
+  const it=[];
+  // 표지
+  it.push({brk:true,cover:true,h:0,draw:(c)=>{
+    spaced(c,'마음의 결 타로',W/2,H*0.30,24,12,C.gold,SANS,'300','center');
+    const g=c.createLinearGradient(0,H*0.36,0,H*0.36+88);
     g.addColorStop(0,'#FBF3DC');g.addColorStop(.46,'#E6D6A4');g.addColorStop(1,'#A88418');
-    ctx.font='700 82px '+SERIF;ctx.fillStyle=g;ctx.textAlign='center';
-    ctx.fillText(R.title,W/2,y+82*.8);ctx.textAlign='left';}
-  y+=82*1.16+64;
-  if(draw)line(ctx,PAD,y,cw); y+=36;
-  y+=text(ctx,runs(R.question||''),PAD+40,cw-80,ST.q,y,draw)+36;
-  if(draw)line(ctx,PAD,y,cw);
-  y+=56;
-  y=block(ctx,R.opening||'',PAD,cw,ST.body,y,draw,34);
-  y=divider(ctx,y,draw);
+    c.font='700 88px '+SERIF;c.fillStyle=g;c.textAlign='center';
+    c.fillText(R.title,W/2,H*0.36+70);c.textAlign='left';
+    c.fillStyle='rgba(201,162,39,.5)';c.fillRect(W/2-40,H*0.50,80,1);
+    text(c,runs(R.question||''),PAD+30,CW-60,ST.cover,H*0.55,true);
+  }});
+  const addParas=(html,st,x,w)=>{
+    for(const p of paras(html)){
+      const h=text(ctx,p,x,w,st,0,false);
+      it.push({h:h+36,draw:(c,y)=>text(c,p,x,w,st,y,true)});
+    }
+  };
+  addParas(R.opening,ST.body,PAD,CW);
+
   const n=R.cards.length;
-  R.cards.forEach((c,i)=>{
-    if(i){if(draw){ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(PAD,y,cw,1);}y+=60;}
-    if(draw){moon(ctx,PAD,y+2,32,i,n);
-      spaced(ctx,c.pos,PAD+60,y+3,24,5.8,'rgba(180,167,198,.9)',SANS,'300');}
-    y+=56;
-    if(draw){ctx.font='700 50px '+SERIF;ctx.fillStyle=C.paper;
-      ctx.fillText(c.name,PAD+IND,y+40);
-      if(c.reversed){const bx=PAD+IND+ctx.measureText(c.name).width+16;
-        ctx.font='400 21px '+SANS;const bw=ctx.measureText('역방향').width;
-        ctx.fillStyle=C.goldPale;ctx.fillRect(bx,y+14,bw+24,32);
-        ctx.fillStyle='#120C1B';ctx.fillText('역방향',bx+12,y+36);}}
-    y+=50*1.05+14;
-    y+=text(ctx,runs(c.key||''),PAD+IND,cw-IND,
-      {size:29,lh:1.7,font:SERIF,w:'400',wb:'700',c:'rgba(230,214,164,.85)'},y,draw)+32;
-    y=block(ctx,c.read||'',PAD+IND,cw-IND,ST.body,y,draw,34)+64;
+  R.cards.forEach((cd,i)=>{
+    const keyH=text(ctx,runs(cd.key||''),PAD,CW,
+      {size:31,lh:1.65,font:SERIF,w:'400',wb:'700',c:'rgba(230,214,164,.85)'},0,false);
+    it.push({brk:true,h:56+62+keyH+46,draw:(c,y)=>{
+      moon(c,PAD,y+2,32,i,n);
+      spaced(c,cd.pos,PAD+56,y+4,24,5.6,'rgba(180,167,198,.9)',SANS,'300');
+      c.font='700 56px '+SERIF;c.fillStyle=C.paper;c.textBaseline='alphabetic';
+      c.fillText(cd.name,PAD,y+56+46);
+      if(cd.reversed){
+        const bx=PAD+c.measureText(cd.name).width+18;
+        c.font='400 22px '+SANS;const bw=c.measureText('역방향').width;
+        c.fillStyle=C.goldPale;c.fillRect(bx,y+56+14,bw+24,34);
+        c.fillStyle='#120C1B';c.fillText('역방향',bx+12,y+56+38);
+      }
+      text(c,runs(cd.key||''),PAD,CW,
+        {size:31,lh:1.65,font:SERIF,w:'400',wb:'700',c:'rgba(230,214,164,.85)'},y+56+62,true);
+    }});
+    addParas(cd.read,ST.body,PAD,CW);
   });
-  y-=64;
-  y=divider(ctx,y,draw);
-  y=block(ctx,R.analysis||'',PAD,cw,ST.body,y,draw,34);
-  y=divider(ctx,y,draw);
-  const inW=cw-120, ch=block(ctx,R.closing||'',PAD+60,inW,ST.close,0,false,30);
-  if(draw){ctx.strokeStyle='rgba(201,162,39,.3)';ctx.lineWidth=1;
-    ctx.fillStyle='rgba(255,255,255,.018)';
-    ctx.fillRect(PAD,y,cw,ch+140);ctx.strokeRect(PAD+.5,y+.5,cw-1,ch+140-1);}
-  block(ctx,R.closing||'',PAD+60,inW,ST.close,y+70,draw,30);
-  y+=ch+140+70;
-  if(draw)spaced(ctx,'@gyeol_taro',W/2,y,22,11,'rgba(201,162,39,.7)',SANS,'300','center');
-  return y+22*1.2+96;
+
+  it.push({brk:true,h:0,label:'분석'});
+  addParas(R.analysis,ST.body,PAD,CW);
+  it.push({brk:true,h:0,label:'마무리'});
+  addParas(R.closing,ST.close,PAD,CW);
+  return it;
+}
+function paginate(items){
+  const pages=[];let cur=[],y=TOP;
+  for(const it of items){
+    if(it.h===0&&!it.cover){ if(cur.length){pages.push(cur);cur=[];y=TOP;} continue; }
+    if(it.cover){ if(cur.length){pages.push(cur);cur=[];} pages.push([{...it,y:0}]); y=TOP; continue; }
+    if((it.brk&&cur.length)||y+it.h>BOT){ if(cur.length){pages.push(cur);} cur=[];y=TOP; }
+    cur.push({...it,y});y+=it.h;
+  }
+  if(cur.length)pages.push(cur);
+  return pages;
 }
 
-const cv=document.getElementById('cv');
-function draw(){
-  let ctx=cv.getContext('2d');
-  cv.width=W;cv.height=10;
-  const H=Math.ceil(render(ctx,false,0));
-  cv.width=W;cv.height=H;
-  render(cv.getContext('2d'),true,H);
+/* ── 그리기 ── */
+let PAGES=[];
+function drawAll(){
+  const probe=document.createElement('canvas').getContext('2d');
+  PAGES=paginate(buildItems(probe));
+  const box=document.getElementById('slides');box.innerHTML='';
+  PAGES.forEach((pg,i)=>{
+    const wrap=document.createElement('div');wrap.className='slide';
+    const cv=document.createElement('canvas');cv.width=W;cv.height=Hs();
+    const c=cv.getContext('2d');
+    bg(c,i);
+    pg.forEach(it=>it.draw(c,it.y));
+    if(!pg[0].cover)foot(c,i+1,PAGES.length);
+    else spaced(c,String(PAGES.length)+' 장',W/2,H-110,19,8,'rgba(180,167,198,.6)',SANS,'300','center');
+    const tag=document.createElement('div');tag.className='tag';tag.textContent=(i+1)+' / '+PAGES.length;
+    wrap.appendChild(cv);wrap.appendChild(tag);box.appendChild(wrap);
+  });
 }
-(document.fonts?document.fonts.load('700 82px "Gowun Batang"')
-  .then(()=>document.fonts.load('300 31px "Noto Sans KR"'))
-  .then(()=>document.fonts.ready):Promise.resolve()).then(draw);
+function Hs(){return H;}
 
+(document.fonts?document.fonts.load('700 88px "Gowun Batang"')
+  .then(()=>document.fonts.load('300 34px "Noto Sans KR"'))
+  .then(()=>document.fonts.ready):Promise.resolve()).then(drawAll);
+
+/* ── 버튼 ── */
 document.getElementById('copyBtn').onclick=function(){
   const t=document.getElementById('promptSrc').textContent.trim();
   const done=()=>{this.textContent='복사했습니다';setTimeout(()=>this.textContent='프롬프트 복사',1600);};
-  if(navigator.clipboard) navigator.clipboard.writeText(t).then(done).catch(fallback.bind(this));
-  else fallback.call(this);
-  function fallback(){
-    const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);
-    a.select();document.execCommand('copy');a.remove();done();
-  }
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(done).catch(fb.bind(this));else fb.call(this);
+  function fb(){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);
+    a.select();document.execCommand('copy');a.remove();done();}
 };
 document.getElementById('applyBtn').onclick=function(){
   let t=document.getElementById('ta').value.trim();
@@ -376,16 +409,70 @@ document.getElementById('applyBtn').onclick=function(){
   try{
     const next=new Function('return ('+t+')')();
     if(!next||!Array.isArray(next.cards)||!next.cards.length)throw 0;
-    R=next;draw();
-    document.getElementById('view').scrollIntoView({behavior:'smooth'});
-  }catch(e){
-    alert('형식을 읽지 못했습니다.\n{ 로 시작해서 } 로 끝나는 부분까지 통째로 붙여넣었는지 확인해 주세요.');
-  }
+    R=next;drawAll();
+    document.getElementById('slides').scrollIntoView({behavior:'smooth'});
+  }catch(e){alert('형식을 읽지 못했습니다.\n{ 로 시작해서 } 로 끝나는 부분까지 통째로 붙여넣었는지 확인해 주세요.');}
 };
-document.getElementById('dl').onclick=function(){
-  const a=document.createElement('a');
-  a.download='리딩시트_'+new Date().toISOString().slice(0,10)+'.jpg';
-  a.href=cv.toDataURL('image/jpeg',0.95);a.click();
+document.getElementById('hint').style.display='none';
+document.getElementById('mode').onclick=function(){
+  const box=document.getElementById('slides'), on=box.classList.toggle('swipe');
+  this.textContent = on ? '세로로 보기' : '옆으로 넘겨보기';
+  document.getElementById('hint').style.display = on ? 'block' : 'none';
+  if(on) box.scrollLeft=0;
+};
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+document.getElementById('dlAll').onclick=async function(){
+  const btn=this;btn.disabled=true;
+  const cvs=document.querySelectorAll('#slides canvas');
+  const d=new Date().toISOString().slice(0,10);
+  for(let i=0;i<cvs.length;i++){
+    btn.textContent=(i+1)+' / '+cvs.length+' 저장 중…';
+    const a=document.createElement('a');
+    a.download='리딩_'+d+'_'+String(i+1).padStart(2,'0')+'.jpg';
+    a.href=cvs[i].toDataURL('image/jpeg',0.95);a.click();
+    await sleep(500);
+  }
+  btn.textContent='카드 전체 JPG로 저장';btn.disabled=false;
+};
+document.getElementById('dlPdf').onclick=function(){
+  const btn=this;btn.disabled=true;btn.textContent='만드는 중…';
+  setTimeout(()=>{
+    try{
+      const PW=595.28,PH=PW*(H/W);
+      const cvs=document.querySelectorAll('#slides canvas');
+      const imgs=[...cvs].map(c=>{
+        const bin=atob(c.toDataURL('image/jpeg',0.95).split(',')[1]);
+        const a=new Uint8Array(bin.length);
+        for(let j=0;j<bin.length;j++)a[j]=bin.charCodeAt(j);return a;});
+      const enc=new TextEncoder();let parts=[],len=0,off=[];
+      const push=x=>{const b=(typeof x==='string')?enc.encode(x):x;parts.push(b);len+=b.length;};
+      const obj=(num,dict,stream)=>{off[num]=len;push(num+' 0 obj\n'+dict+'\n');
+        if(stream){push('stream\n');push(stream);push('\nendstream\n');}push('endobj\n');};
+      push('%PDF-1.4\n');
+      const n=imgs.length,kids=[];for(let i=0;i<n;i++)kids.push((3+i*3)+' 0 R');
+      obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+      obj(2,'<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+n+' >>');
+      imgs.forEach((im,i)=>{
+        const P=3+i*3,CT=4+i*3,IG=5+i*3;
+        obj(P,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+PW.toFixed(2)+' '+PH.toFixed(2)+
+          '] /Resources << /XObject << /Im0 '+IG+' 0 R >> >> /Contents '+CT+' 0 R >>');
+        const cs='q '+PW.toFixed(2)+' 0 0 '+PH.toFixed(2)+' 0 0 cm /Im0 Do Q';
+        obj(CT,'<< /Length '+cs.length+' >>',cs);
+        obj(IG,'<< /Type /XObject /Subtype /Image /Width '+W+' /Height '+H+
+          ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.length+' >>',im);
+      });
+      const max=2+n*3,xref=len;
+      push('xref\n0 '+(max+1)+'\n0000000000 65535 f \n');
+      for(let i=1;i<=max;i++)push(String(off[i]).padStart(10,'0')+' 00000 n \n');
+      push('trailer\n<< /Size '+(max+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF');
+      const url=URL.createObjectURL(new Blob(parts,{type:'application/pdf'}));
+      const a=document.createElement('a');
+      a.download='리딩카드_'+new Date().toISOString().slice(0,10)+'.pdf';
+      a.href=url;a.click();setTimeout(()=>URL.revokeObjectURL(url),4000);
+    }catch(e){alert('PDF를 만들지 못했습니다. 새로고침 후 다시 시도해 주세요.');}
+    btn.textContent='한 파일 PDF로 저장';btn.disabled=false;
+  },30);
 };
 </script>
 </body>
